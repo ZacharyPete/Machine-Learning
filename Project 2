@@ -1,0 +1,123 @@
+
+import numpy as np
+import sklearn as sk
+import pandas as pd
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes
+def Split_Data(train_rna_array, train_adt_array):
+	random = int(np.random.rand()*100)
+	# Create local Test/Train split
+	rna_train, rna_test, adt_train, adt_test = train_test_split(train_rna_array.T, train_adt_array.T, test_size=0.3, random_state=random)
+	return rna_train.T, rna_test.T, adt_train.T, adt_test.T
+import pandas as pd
+
+# Loading the data
+train_adt = pd.read_csv('C:/Users/zackl/Desktop/678/training_set_adt.csv')
+train_rna = pd.read_csv('C:/Users/zackl/Desktop/678/training_set_rna.csv')
+test_rna = pd.read_csv('C:/Users/zackl/Desktop/678/test_set_rna.csv')
+
+# Checking the dimensions of the datasets
+len_tr_adt = train_adt.shape
+len_tr_rna = train_rna.shape
+len_te_rna = test_rna.shape
+
+# Displaying the first few rows of the RNA training dataset
+train_rna.head()
+TRAIN_adt = train_adt.iloc[:,1:]
+TRAIN_rna = train_rna.iloc[:,1:]
+TEST_rna = test_rna.iloc[:,1:]
+
+import numpy as np
+
+train_adt_array = np.array(TRAIN_adt)
+train_rna_array = np.array(TRAIN_rna)
+test_rna_array = np.array(TEST_rna)
+print('train adt shape:', train_adt_array.shape)
+print('train rna shape:', train_rna_array.shape)
+print('test rna shape:', test_rna_array.shape)
+import numpy as np
+
+# Calculating matrices a and b
+a = np.dot(train_rna_array, np.transpose(train_rna_array))
+b = np.dot(train_adt_array, np.transpose(train_rna_array))
+
+# Solving for weights w
+w = np.linalg.solve(a, np.transpose(b))
+
+# Predicting ADT values for training data
+y_hat_train = np.dot(np.transpose(train_rna_array), w)
+
+# Adjusting the shape of y_hat for consistency
+y_hat_train = np.transpose(y_hat_train)
+import numpy as np
+
+XX = train_rna_array
+yy = train_adt_array
+
+num_epochs = 100
+learn_rate = 0.001
+
+# Initialize weights randomly
+w = np.random.rand(XX.shape[0], 25)
+
+for trials in range(1, num_epochs):
+	for i in range(0, XX.shape[1]-1):
+    	y_hat2 = np.dot(XX[:,i].reshape(639,1).T, w)
+    	error = yy[:,i] - y_hat2
+    	gradient = error.T * XX[:,i]
+    	w = w + learn_rate * gradient.T
+    
+	pose = np.dot(XX.T, w)
+	pose_long = np.reshape(pose, -1)
+	yy_long = np.reshape(yy, -1)
+	loss = np.corrcoef(pose_long, yy_long)[0, 1]
+	print(f'Trial # {trials} Loss: {loss}')
+
+# Reshaping the arrays for statistical analysis
+y_hat_long = np.reshape(y_hat, -1)
+train_adt_array_long = np.reshape(train_adt_array, -1)
+
+# Calculating the Pearson correlation coefficient
+correlation_matrix = np.corrcoef(train_adt_array_long, y_hat_long)
+# Creating index strings for each prediction
+index_strings = ["ID_" + str(i) for i in range(1, len(y_hat_long) + 1)]
+
+# Constructing the DataFrame
+DF = pd.DataFrame(y_hat_long, index=index_strings)
+DF.columns = ['Expected']
+DF.index.name = "Id"
+
+# Exporting the DataFrame to a CSV file
+DF.to_csv("C:/Users/zackl/YHat.csv")
+
+# Creating index strings for each prediction
+index_strings = ["ID_" + str(i) for i in range(1, len(y_hat_long) + 1)]
+
+# Constructing the DataFrame
+DF = pd.DataFrame(y_hat_long, index=index_strings)
+DF.columns = ['Expected']
+DF.index.name = "Id"
+
+# Exporting the DataFrame to a CSV file
+DF.to_csv("C:/Users/zackl/YHat.csv")
+
+x = x.reshape(-1)
+y = y.reshape(-1)
+z = loss_vector.reshape(-1)
+
+# Create figure and 3D axis
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot points
+ax.scatter(x, y, z, c='r', marker='o')
+
+# Set labels
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Show plot
+plt.show()
